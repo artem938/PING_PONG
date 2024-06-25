@@ -1,1 +1,1 @@
-игра на двоих
+WELCOME TO THE GAME PING PONG
