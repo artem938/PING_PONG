@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 GREEN = (0, 128, 0)
 YELLOW = (255,255,0)
 MAROON = (128,0,0)
+BLUE = (0,0,128)
 
 class Base_sprite(pg.sprite.Sprite):
     def __init__(self, pic, x, y, w, h):
@@ -115,13 +116,10 @@ class Button:
 
 
 
-
-
-def set_text(text, x, y, color=(0,0,0)):
+def set_text(screen,text, x, y, color):
     mw.blit(
         font1.render(text, True, color), (x, y)
     )
-
 
 
 win_x = 700
@@ -129,15 +127,11 @@ win_y = 500
 
 
 mw = pg.display.set_mode((win_x, win_y))
-pg.display.set_caption('настольный шторм')
+pg.display.set_caption('TABLE STORM')
 background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
 clock = pg.time.Clock()
 
-fon_win = pg.image.load("fon_win.png")
-fon_win = pg.transform.scale(fon_win, (win_x, win_y))
 
-fon_end = pg.image.load("fon_end.png")
-fon_end = pg.transform.scale(fon_end, (win_x, win_y))
 
 pg.mixer.init()
 pg.mixer.music.load('fon_music.ogg')
@@ -145,16 +139,19 @@ ping_ball = pg.mixer.Sound('ping_ball.ogg')
 
 
 button_EXIT = Button('EXIT', 300, 370, 100, 50, RED)
-button_play = Button('PlAY', 300, 150, 100, 50, YELLOW)
-button_complexity = Button('COMPLEXITY', 250, 220, 200, 50, LIME)
-button_easy = Button('EASY', 300, 270, 100, 50, GREEN)
-button_hard = Button('HARD', 300, 270, 100, 50, MAROON)
+button_play = Button('PlAY', 300, 100, 100, 50, YELLOW)
+button_complexity = Button('COMPLEXITY:', 250, 170, 200, 50, LIME)
+button_easy = Button('<<EASY>>', 275, 220, 150, 50, GREEN)
+button_hard = Button('<<HARD>>', 275, 220, 150, 50, MAROON)
+button_control = Button('CONTROL', 275, 295, 150, 50, BLUE)
 button_hard.visible = False
+
 
 
 
 pg.font.init()
 font1 = pg.font.Font(None, 36)
+
 
 ticks = 0
 
@@ -225,23 +222,33 @@ while game:
             pg.mixer.music.stop()
 
         if button_easy.visible == True:
+            button_hard.visible = False
             Ball.speed_x = 4
             Ball.speed_y = 4
 
         if button_hard.visible == True:
-            Ball.speed_x = 6
-            Ball.speed_y = 6
+            button_easy.visible = False
+            Ball.speed_x = 8
+            Ball.speed_y = 8
 
+        if play == True:
+            set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
         
-        set_text(f'Очки: {Ball.points}', 60, 50)
-        set_text(f'Время:{Ball.minutes} Минут {Ball.sec} секунды', 200, 50)
+        
+        set_text(mw, f'glasses: {Ball.points}', 60, 50, (0,0,0))
+        set_text(mw,f'TIME:{Ball.minutes} minutes {Ball.sec} seconds', 200, 50, (0,0,0))
+        set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
+        
+
 
 
     else:
         if win == True:
-            set_text(f'ВЫ ВЫЙГРАЛИ. ВРЕМЯ:{Ball.minutes} минут {Ball.sec} секунды', 50, 50)
+            set_text(mw,f'you WIN. TIME:{Ball.minutes} minutes {Ball.sec} seconds', 50, 50, (0,0,0))
+            set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
         if end == True:
-            set_text(f'ВЫ ПРОИГРАЛИ. ВРЕМЯ:{Ball.minutes} минут {Ball.sec} секунды', 50, 50)
+            set_text(mw,f'you LOSE. TIME:{Ball.minutes} minutes {Ball.sec} seconds', 50, 50, (0,0,0))
+            set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
 
 
         button_play.draw(mw)
@@ -249,9 +256,13 @@ while game:
         button_complexity.draw(mw)
         button_easy.draw(mw)
         button_hard.draw(mw)
+        button_control.draw(mw)
 
 
-
+        if play == False and win == False and end == False:
+            set_text(mw, 'WELCOME TO THE GAME - PING PONG', 130, 20, (100,47,136))
+            set_text(mw, 'Press CONTROL or F!', 230, 60, (128,128,128))
+            set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
     
     pg.display.update()
 
@@ -266,13 +277,29 @@ while game:
                 ball = Ball('ball_ping.png', randint(100, 400), randint(100, 400), 50, 50)
                 raccket1 = Racket1('ping_rocket1.png', 40, 200, 10, 100)
                 raccket2 = Racket2('ping_rocket2.png', 640, 200, 10, 100)
-                Ball.milsec
+                Ball.milsec = 0
                 Ball.sec = 0
                 Ball.minutes = 0
                 Ball.points = 0
                 button_EXIT.visible = False
                 button_play.visible = False
                 pg.mixer.music.play()
+
+        if play == False:
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_RETURN:
+                    play = True
+                    end = False
+                    ball = Ball('ball_ping.png', randint(100, 400), randint(100, 400), 50, 50)
+                    raccket1 = Racket1('ping_rocket1.png', 40, 200, 10, 100)
+                    raccket2 = Racket2('ping_rocket2.png', 640, 200, 10, 100)
+                    Ball.milsec = 0
+                    Ball.sec = 0
+                    Ball.minutes = 0
+                    Ball.points = 0
+                    button_EXIT.visible = False
+                    button_play.visible = False
+                    pg.mixer.music.play()
 
         if e.type == pg.MOUSEBUTTONDOWN:
             if button_easy.is_clicked(e.pos):
@@ -288,7 +315,233 @@ while game:
             if button_EXIT.is_clicked(e.pos):
                 game = False
 
+        if play == False:
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
+                    game = False
+
+
+        elif e.type == pg.KEYDOWN:
+            if e.key == pg.K_ESCAPE:
+                play = False
+                button_play.visible = True
+                button_EXIT.visible = True
+                button_hard.draw(mw)
+                button_easy.draw(mw)
+                button_complexity.draw(mw)
+                pg.mixer.music.stop()
+
+        if play == False:
+            if e.type == pg.KEYDOWN:
+                if e.key == pg.K_LEFT:
+                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                    button_hard.toggle()  # Переключаем видимость кнопки 2
+                elif e.key == pg.K_RIGHT:
+                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                    button_hard.toggle()  # Переключаем видимость кнопки 2
+
+        if e.type == pg.KEYDOWN:
+            if e.key == pg.K_f:
+                mw = pg.display.set_mode((win_x, win_y))
+                pg.display.set_caption('TABLE STORM')
+                background = pg.transform.scale(pg.image.load('fon4.jpg'), (win_x, win_y))
+                clock = pg.time.Clock()
+
+                button_BACK = Button('<-BACK', 25, 420, 150, 50, BLUE)
+
+                game2 = True
+                while game2:
+                    mw.blit(background, (0,0))
+                    pg.display.set_caption('CONTROL')
+                    set_text(mw, 'CONTROL IN MENU:', 25, 25, (255, 255, 255))
+                    set_text(mw, 'Start the game -- ENTER', 45,50, (255, 255, 255))
+                    set_text(mw, 'Select difficulty -- < and >', 45, 75, (255, 255, 255))
+                    set_text(mw, 'Сontrol -- F', 45, 100, (255,255,255))
+                    set_text(mw, 'Go to the menu or close the game -- ESCAPE', 45, 125, (255,255,255))
+                    set_text(mw, 'CONTROL IN GAME:', 25, 150, (255,255,255))
+                    set_text(mw, 'Control the first racket -- W(UP), S(DOWN)', 45, 175, (255,255,255))
+                    set_text(mw, 'Control the second racket -- UP ,DOWN', 45, 200, (255, 255, 255))
+                    set_text(mw, 'Press ESCAPE or BACK to exit', 25, 250, (255, 255, 255))
+                    set_text(mw, 'ATTENTION! the ball falls to the second racket!!!', 25, 300, (255, 255, 255))
+                    set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
+                    button_BACK.draw(mw)
+                    button_BACK.visible = True
+                    button_play.visible = False
+                    button_EXIT.visible = False
+                    button_easy.visible = False
+                    button_hard.visible = False
+                    button_control.visible = False
+                    button_complexity.visible = False
+
+                    for e in pg.event.get():
+                        if e.type == pg.QUIT:
+                            game2 = False
+                            pg.display.set_caption('TABLE STORM')
+                            background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                            clock = pg.time.Clock()
+                            button_play.visible = True
+                            button_EXIT.visible = True
+                            button_easy.visible = True
+                            button_hard.visible = False
+                            button_control.visible = True
+                            button_complexity.visible = True
+                            if e.type == pg.KEYDOWN:
+                                if e.key == pg.K_LEFT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()  # Переключаем видимость кнопки 2
+                                elif e.key == pg.K_RIGHT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()
+
+                    if e.type == pg.MOUSEBUTTONDOWN:
+                        if button_BACK.is_clicked(e.pos):
+                            game2 = False
+                            pg.display.set_caption('TABLE STORM')
+                            background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                            clock = pg.time.Clock()
+
+                            
+
+                            button_play.visible = True
+                            button_EXIT.visible = True
+                            button_easy.visible = True
+                            button_hard.visible = False
+                            button_control.visible = True
+                            button_complexity.visible = True
+                            if e.type == pg.KEYDOWN:
+                                if e.key == pg.K_LEFT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()  # Переключаем видимость кнопки 2
+                                elif e.key == pg.K_RIGHT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()
+
+                    if e.type == pg.KEYDOWN:
+                        if e.key == pg.K_ESCAPE:
+                            game2 = False
+                            pg.display.set_caption('TABLE STORM')
+                            background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                            clock = pg.time.Clock()
+                            button_play.visible = True
+                            button_EXIT.visible = True
+                            button_easy.visible = True
+                            button_hard.visible = False
+                            button_control.visible = True
+                            button_complexity.visible = True
+                            if e.type == pg.KEYDOWN:
+                                if e.key == pg.K_LEFT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()  # Переключаем видимость кнопки 2
+                                elif e.key == pg.K_RIGHT:
+                                    button_easy.toggle()  # Переключаем видимость кнопки 1
+                                    button_hard.toggle()
+
+                    pg.display.update()
+                    clock.tick(60)
+
+        
+    if e.type == pg.MOUSEBUTTONDOWN:
+        if button_control.is_clicked(e.pos):
+            mw = pg.display.set_mode((win_x, win_y))
+            pg.display.set_caption('TABLE STORM')
+            background = pg.transform.scale(pg.image.load('fon4.jpg'), (win_x, win_y))
+            clock = pg.time.Clock()
+
+            button_BACK = Button('<-BACK', 25, 420, 150, 50, BLUE)
+
+            game2 = True
+            while game2:
+                mw.blit(background, (0,0))
+                pg.display.set_caption('CONTROL')
+                set_text(mw, 'CONTROL IN MENU:', 25, 25, (255, 255, 255))
+                set_text(mw, 'Start the game -- ENTER', 45,50, (255, 255, 255))
+                set_text(mw, 'Select difficulty -- < and >', 45, 75, (255, 255, 255))
+                set_text(mw, 'Сontrol -- F', 45, 100, (255,255,255))
+                set_text(mw, 'Go to the menu or close the game -- ESCAPE', 45, 125, (255,255,255))
+                set_text(mw, 'CONTROL IN GAME:', 25, 150, (255,255,255))
+                set_text(mw, 'Control the first racket -- W(UP), S(DOWN)', 45, 175, (255,255,255))
+                set_text(mw, 'Control the second racket -- UP ,DOWN', 45, 200, (255, 255, 255))
+                set_text(mw, 'Press ESCAPE or BACK to exit', 25, 250, (255, 255, 255))
+                set_text(mw, 'ATTENTION! the ball falls to the second racket!!!', 25, 300, (255, 255, 255))
+                set_text(mw, 'VERSION V1.0', 530, 470, (0,0,0))
+                button_BACK.draw(mw)
+                button_BACK.visible = True
+                button_play.visible = False
+                button_EXIT.visible = False
+                button_easy.visible = False
+                button_hard.visible = False
+                button_control.visible = False
+                button_complexity.visible = False
+
+                for e in pg.event.get():
+                    if e.type == pg.QUIT:
+                        game2 = False
+                        pg.display.set_caption('TABLE STORM')
+                        background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                        clock = pg.time.Clock()
+                        button_play.visible = True
+                        button_EXIT.visible = True
+                        button_easy.visible = True
+                        button_hard.visible = False
+                        button_control.visible = True
+                        button_complexity.visible = True
+                        if e.type == pg.KEYDOWN:
+                            if e.key == pg.K_LEFT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()  # Переключаем видимость кнопки 2
+                            elif e.key == pg.K_RIGHT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()
+
+                if e.type == pg.KEYDOWN:
+                    if e.key == pg.K_ESCAPE:
+                        game2 = False
+                        pg.display.set_caption('TABLE STORM')
+                        background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                        clock = pg.time.Clock()
+                        button_play.visible = True
+                        button_EXIT.visible = True
+                        button_easy.visible = True
+                        button_hard.visible = False
+                        button_control.visible = True
+                        button_complexity.visible = True
+                        if e.type == pg.KEYDOWN:
+                            if e.key == pg.K_LEFT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()  # Переключаем видимость кнопки 2
+                            elif e.key == pg.K_RIGHT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()
+
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    if button_BACK.is_clicked(e.pos):
+                        game2 = False
+                        pg.display.set_caption('TABLE STORM')
+                        background = pg.transform.scale(pg.image.load('fon2.jpg'), (win_x, win_y))
+                        clock = pg.time.Clock()
+
+                        
+
+                        button_play.visible = True
+                        button_EXIT.visible = True
+                        button_easy.visible = True
+                        button_hard.visible = False
+                        button_control.visible = True
+                        button_complexity.visible = True
+                        if e.type == pg.KEYDOWN:
+                            if e.key == pg.K_LEFT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()  # Переключаем видимость кнопки 2
+                            elif e.key == pg.K_RIGHT:
+                                button_easy.toggle()  # Переключаем видимость кнопки 1
+                                button_hard.toggle()
+
+
+                pg.display.update()
+                clock.tick(60)
 
 
 
+
+    
     clock.tick(60)
